@@ -31,7 +31,7 @@
 ```
 
 
-#JsBridge
+# JsBridge
 
 -----
 inspired and modified from [this](https://github.com/jacin1/JsBridge) and wechat jsBridge file, with some bugs fix and feature enhancement.
