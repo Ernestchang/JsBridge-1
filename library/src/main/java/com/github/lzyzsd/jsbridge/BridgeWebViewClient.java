@@ -1,6 +1,8 @@
 package com.github.lzyzsd.jsbridge;
 
 import android.graphics.Bitmap;
+import android.net.http.SslError;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -61,5 +63,15 @@ public class BridgeWebViewClient extends WebViewClient {
     @Override
     public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
         super.onReceivedError(view, errorCode, description, failingUrl);
+    }
+
+    @Override
+    public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error){
+        //注意：super句话一定要删除，或者注释掉，否则又走handler.cancel()默认的不支持https的了。
+        //super.onReceivedSslError(view, handler, error);
+        //handler.cancel(); // Android默认的处理方式
+        //handler.handleMessage(Message msg); // 进行其他处理
+
+        handler.proceed(); // 接受所有网站的证书
     }
 }
