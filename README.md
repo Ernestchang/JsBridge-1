@@ -1,4 +1,32 @@
+
 # Add to fix
+
+在Android7.0手机上因为调用onPageFinish()方法时机不确定，而直接加载本地javascript,导致页面显示空白异常。
+
+> 报错： Android Webview: Cannot call determinedVisibility() - never saw a connection for the pid
+
+解决办法：
+
+> 等webView.loadUrl()加载完毕，调用onPageFinished()时，延迟100毫秒加载本地javascript
+
+```
+@Override
+    public void onPageFinished(final WebView view, String url) {
+        super.onPageFinished(view, url);
+
+        if (BridgeWebView.toLoadJs != null) {
+            view.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    BridgeUtil.webViewLoadLocalJs(view, BridgeWebView.toLoadJs);
+                }
+            }, 100);
+        }
+
+       ...
+    }
+
+```
 **load mixed https and http html :** 解决android 6.0 webview加载https出现空白页问题
 
 解决办法：

@@ -44,11 +44,16 @@ public class BridgeWebViewClient extends WebViewClient {
     }
 
     @Override
-    public void onPageFinished(WebView view, String url) {
+    public void onPageFinished(final WebView view, String url) {
         super.onPageFinished(view, url);
 
         if (BridgeWebView.toLoadJs != null) {
-            BridgeUtil.webViewLoadLocalJs(view, BridgeWebView.toLoadJs);
+            view.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    BridgeUtil.webViewLoadLocalJs(view, BridgeWebView.toLoadJs);
+                }
+            }, 100);
         }
 
         //
@@ -66,7 +71,7 @@ public class BridgeWebViewClient extends WebViewClient {
     }
 
     @Override
-    public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error){
+    public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
         //注意：super句话一定要删除，或者注释掉，否则又走handler.cancel()默认的不支持https的了。
         //super.onReceivedSslError(view, handler, error);
         //handler.cancel(); // Android默认的处理方式
