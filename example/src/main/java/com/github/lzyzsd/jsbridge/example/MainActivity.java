@@ -70,7 +70,7 @@ public class MainActivity extends Activity implements OnClickListener {
 			}
 		});
 
-		webView.loadUrl("file:///android_asset/demo.html");
+		webView.loadUrl("file:///android_asset/error.html");
 
 		webView.registerHandler("submitFromWeb", new BridgeHandler() {
 
