@@ -87,6 +87,7 @@ public class BridgeWebViewClient extends WebViewClient {
         // 这个方法在6.0才出现
         int statusCode = errorResponse.getStatusCode();
         System.out.print("onReceivedHttpError code = " + statusCode);
+
         if (404 == statusCode || 500 == statusCode) {
             view.loadUrl("about:blank");// 避免出现默认的错误界面
             view.loadUrl("file:///android_asset/error.html");
@@ -97,6 +98,8 @@ public class BridgeWebViewClient extends WebViewClient {
     @Override
     public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
         super.onReceivedError(view, errorCode, description, failingUrl);
+        System.out.print("onReceivedError errorCode = " + errorCode);
+
         // 断网或者网络连接超时
         if (errorCode == ERROR_HOST_LOOKUP || errorCode == ERROR_CONNECT || errorCode == ERROR_TIMEOUT) {
             view.loadUrl("about:blank"); // 避免出现默认的错误界面
