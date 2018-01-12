@@ -3,6 +3,7 @@ package com.github.lzyzsd.jsbridge;
 import android.annotation.TargetApi;
 import android.graphics.Bitmap;
 import android.net.http.SslError;
+import android.util.Log;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -86,20 +87,17 @@ public class BridgeWebViewClient extends WebViewClient {
         super.onReceivedHttpError(view, request, errorResponse);
         // 这个方法在6.0才出现
         int statusCode = errorResponse.getStatusCode();
-        System.out.print("onReceivedHttpError code = " + statusCode);
-
-        if (404 == statusCode || 500 == statusCode) {
-            view.loadUrl("about:blank");// 避免出现默认的错误界面
-            view.loadUrl("file:///android_asset/error.html");
-
-        }
+        Log.e("ernest", "onReceivedHttpError code = " + statusCode);
+//        if (404 == statusCode || 500 == statusCode) {
+//            view.loadUrl("about:blank");// 避免出现默认的错误界面
+//            view.loadUrl("file:///android_asset/error.html");
+//        }
     }
 
     @Override
     public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
         super.onReceivedError(view, errorCode, description, failingUrl);
-        System.out.print("onReceivedError errorCode = " + errorCode);
-
+        Log.e("ernest", "onReceivedError errorCode = " + errorCode);
         // 断网或者网络连接超时
         if (errorCode == ERROR_HOST_LOOKUP || errorCode == ERROR_CONNECT || errorCode == ERROR_TIMEOUT) {
             view.loadUrl("about:blank"); // 避免出现默认的错误界面
