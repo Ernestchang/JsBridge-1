@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="renderer" content="webkit">
+    <meta name="wap-font-scale" content="no" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="0"/>
+	<title>404</title>
+	<style type="text/css">
+		*{padding: 0;margin:0;}
+		.fs3{font-size: 0.3rem;}
+		.fontBold{font-weight: bold;font-size: 0.75rem;margin-bottom: 15px;}
+		.error404{width: 100%;height: 100%;background:url(https://static.51jinke.com/jinke/h5/404/1.png) no-repeat 0 0;background-size: 100% 100%;text-align: center;color:#fff;}
+		.error404 .error-img{width: 50%;margin-top: 1rem;}
+		.error404 .error-back{color:#fff;display: block;font-size: 0.3rem;width: 2.5rem;line-height: 0.75rem;margin:1rem auto 0.2rem;background:#b28347;text-align: center;text-decoration: none;}
+	</style>
+</head>
+<body>
+	<div class="error404" id="error">
+        <img class="error-img" src="https://static.51jinke.com/jinke/h5/404/2.png" alt="" />
+        <h2 class="fontBold">404</h2>
+        <p class="fs3">对不起，你要找的页面去了水星~</p>
+        <a id="errorBack" class="error-back" href="javascript:void(0)">返回上一页</a>
+    </div>
+
+    <script type="text/javascript">
+	    //(640px的设计稿 1rem = 100px)
+		(function (doc, win) {
+        var docEl = doc.documentElement,
+            resizeEvt = 'orientationchange' in window ? 'orientationchange' : 'resize',
+            recalc = function () {
+                var clientWidth = docEl.clientWidth;
+                var clientHeight = docEl.clientHeight;
+                if (!clientWidth) return;
+                if(clientWidth >= 640){
+                    docEl.style.fontSize = '100px';
+                }else{
+                    docEl.style.fontSize = 100 * (clientWidth / 640) + 'px';
+                }
+
+                // 设置页面高度
+				var error = document.getElementById('error');
+				error.style.minHeight = clientHeight +'px'
+            };
+
+        if (!doc.addEventListener) return;
+        win.addEventListener(resizeEvt, recalc, false);
+        doc.addEventListener('DOMContentLoaded', recalc, false);
+
+        // 调取webBridge
+    	setupWebViewJavascriptBridge(function(bridge) {
+	        if(/(Android)/i.test(navigator.userAgent)) {
+	            bridge.init(function(message, responseCallback) {
+	                // console.log('JS got a message', message);
+	                // var data = {
+	                //     'Javascript Responds': '测试中文!'
+	                // };
+	                // console.log('JS responding with', data);
+	                responseCallback('');
+	            });
+	        };
+	        // 获取版本
+	        bridge.callHandler('checkVersionInNative', {}, function(response) {
+	            var getResponse = response;
+	            if(/(Android)/i.test(navigator.userAgent)) {
+	                getResponse = JSON.parse(response);
+	            }
+	            vm.checkVersion = parseInt((getResponse.version).replace('.',''));
+	            console.log(getResponse.version);
+	        });
+	        //获取当前用户id
+	        bridge.callHandler('getUserAgentInNative', {}, function(response) {
+	            var getResponse = response;
+	            if(/(Android)/i.test(navigator.userAgent)) {
+	                getResponse = JSON.parse(response);
+	            }
+	        });
+
+	         // 传递标题
+	        bridge.callHandler('configTitleInNative', {
+	            title:'404',
+	        }, function(response) {
+	            console.log('JS got response', response);
+	        });
+	        // 返回上一页
+	        var errorBack = document.getElementById('errorBack')
+	        errorBack.onclick = function(){
+	        	bridge.callHandler('backToFinishInNative', {}, function(response) {
+		            console.log('JS got response', response);
+		        });
+	        }
+    	})
+    	function setupWebViewJavascriptBridge(callback){
+	        if (/(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent)){  //IOS
+	            if (window.WebViewJavascriptBridge) { return callback(WebViewJavascriptBridge); }
+	            console.log('IOS')
+	            if (window.WVJBCallbacks) { return window.WVJBCallbacks.push(callback); }
+	            window.WVJBCallbacks = [callback];
+	            var WVJBIframe = document.createElement('iframe');
+	            WVJBIframe.style.display = 'none';
+	            WVJBIframe.src = 'https://__bridge_loaded__';
+	            document.documentElement.appendChild(WVJBIframe);
+	            setTimeout(function() { document.documentElement.removeChild(WVJBIframe) }, 0);
+
+	        }else if(/(Android)/i.test(navigator.userAgent)) {  //android
+	            console.log('安卓');
+	            if (window.WebViewJavascriptBridge) {
+	                callback(WebViewJavascriptBridge)
+	            } else {
+	                document.addEventListener(
+	                    'WebViewJavascriptBridgeReady'
+	                    , function() {
+	                        callback(WebViewJavascriptBridge)
+	                    },
+	                    false
+	                );
+	            }
+	        }
+	    }
+    })(document, window);
+    </script>
+</body>
+</html>

@@ -5,12 +5,12 @@ group='com.github.ernestchang'
 version = "1.0.5"
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion '25.0.2'
+    compileSdkVersion 26
+    buildToolsVersion '26.0.2'
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 21
+        targetSdkVersion 26
         versionCode 1
         versionName version
     }
