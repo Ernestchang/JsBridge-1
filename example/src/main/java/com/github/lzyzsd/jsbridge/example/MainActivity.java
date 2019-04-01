@@ -2,13 +2,12 @@ package com.github.lzyzsd.jsbridge.example;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.webkit.ValueCallback;
-import android.webkit.WebChromeClient;
 import android.widget.Button;
 
 import com.github.lzyzsd.jsbridge.BridgeHandler;
@@ -16,18 +15,22 @@ import com.github.lzyzsd.jsbridge.BridgeWebView;
 import com.github.lzyzsd.jsbridge.CallBackFunction;
 import com.github.lzyzsd.jsbridge.DefaultHandler;
 import com.google.gson.Gson;
+import com.tencent.smtt.sdk.ValueCallback;
+import com.tencent.smtt.sdk.WebChromeClient;
+import com.tencent.smtt.sdk.WebSettings;
+import com.tencent.smtt.sdk.WebView;
 
 public class MainActivity extends Activity implements OnClickListener {
 
-	private final String TAG = "MainActivity";
+    private final String TAG = "MainActivity";
 
-	BridgeWebView webView;
+    BridgeWebView webView;
 
-	Button button;
+    Button button;
 
-	int RESULT_CODE = 0;
+    int RESULT_CODE = 0;
 
-	ValueCallback<Uri> mUploadMessage;
+    ValueCallback<Uri> mUploadMessage;
 
     static class Location {
         String address;
@@ -39,48 +42,51 @@ public class MainActivity extends Activity implements OnClickListener {
         String testStr;
     }
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        getWindow().setFormat(PixelFormat.TRANSLUCENT);
 
-        webView = (BridgeWebView) findViewById(R.id.webView);
+        webView = findViewById(R.id.webView);
 
-		button = (Button) findViewById(R.id.button);
+        initWebViewSettings(webView);
 
-		button.setOnClickListener(this);
+        button = findViewById(R.id.button);
 
-		webView.setDefaultHandler(new DefaultHandler());
+        button.setOnClickListener(this);
 
-		webView.setWebChromeClient(new WebChromeClient() {
+        webView.setDefaultHandler(new DefaultHandler());
 
-			@SuppressWarnings("unused")
-			public void openFileChooser(ValueCallback<Uri> uploadMsg, String AcceptType, String capture) {
-				this.openFileChooser(uploadMsg);
-			}
+        webView.setWebChromeClient(new WebChromeClient() {
 
-			@SuppressWarnings("unused")
-			public void openFileChooser(ValueCallback<Uri> uploadMsg, String AcceptType) {
-				this.openFileChooser(uploadMsg);
-			}
+            @SuppressWarnings("unused")
+            public void openFileChooser(ValueCallback<Uri> uploadMsg, String AcceptType, String capture) {
+                this.openFileChooser(uploadMsg);
+            }
 
-			public void openFileChooser(ValueCallback<Uri> uploadMsg) {
-				mUploadMessage = uploadMsg;
-				pickFile();
-			}
-		});
+            @SuppressWarnings("unused")
+            public void openFileChooser(ValueCallback<Uri> uploadMsg, String AcceptType) {
+                this.openFileChooser(uploadMsg);
+            }
 
-		webView.loadUrl("file:///android_asset/error.html");
+            public void openFileChooser(ValueCallback<Uri> uploadMsg) {
+                mUploadMessage = uploadMsg;
+                pickFile();
+            }
+        });
 
-		webView.registerHandler("submitFromWeb", new BridgeHandler() {
+        webView.loadUrl("http://192.168.1.122:8081/video.html");
 
-			@Override
-			public void handler(String data, CallBackFunction function) {
-				Log.i(TAG, "handler = submitFromWeb, data from web = " + data);
+        webView.registerHandler("submitFromWeb", new BridgeHandler() {
+
+            @Override
+            public void handler(String data, CallBackFunction function) {
+                Log.i(TAG, "handler = submitFromWeb, data from web = " + data);
                 function.onCallBack("submitFromWeb exe, response data 中文 from Java");
-			}
+            }
 
-		});
+        });
 
         User user = new User();
         Location location = new Location();
@@ -97,40 +103,66 @@ public class MainActivity extends Activity implements OnClickListener {
 
         webView.send("hello");
 
-	}
+    }
 
-	public void pickFile() {
-		Intent chooserIntent = new Intent(Intent.ACTION_GET_CONTENT);
-		chooserIntent.setType("image/*");
-		startActivityForResult(chooserIntent, RESULT_CODE);
-	}
+    public void pickFile() {
+        Intent chooserIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        chooserIntent.setType("image/*");
+        startActivityForResult(chooserIntent, RESULT_CODE);
+    }
 
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		if (requestCode == RESULT_CODE) {
-			if (null == mUploadMessage){
-				return;
-			}
-			Uri result = intent == null || resultCode != RESULT_OK ? null : intent.getData();
-			mUploadMessage.onReceiveValue(result);
-			mUploadMessage = null;
-		}
-	}
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == RESULT_CODE) {
+            if (null == mUploadMessage) {
+                return;
+            }
+            Uri result = intent == null || resultCode != RESULT_OK ? null : intent.getData();
+            mUploadMessage.onReceiveValue(result);
+            mUploadMessage = null;
+        }
+    }
 
-	@Override
-	public void onClick(View v) {
-		if (button.equals(v)) {
-            webView.callHandler("functionInJs", "data from Java", new CallBackFunction() {
+    @Override
+    public void onClick(View v) {
+        startActivity(new Intent(this, FullScreenActivity.class));
+//        if (button.equals(v)) {
+//            webView.callHandler("functionInJs", "data from Java", new CallBackFunction() {
+//
+//                @Override
+//                public void onCallBack(String data) {
+//                    // TODO Auto-generated method stub
+//                    Log.i(TAG, "reponse data from js " + data);
+//                }
+//
+//            });
+//        }
 
-				@Override
-				public void onCallBack(String data) {
-					// TODO Auto-generated method stub
-					Log.i(TAG, "reponse data from js " + data);
-				}
+    }
 
-			});
-		}
+    private void initWebViewSettings(WebView webView) {
+        WebSettings webSetting = webView.getSettings();
+        webSetting.setJavaScriptEnabled(true);
+        webSetting.setJavaScriptCanOpenWindowsAutomatically(true);
+        webSetting.setAllowFileAccess(true);
+        webSetting.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NARROW_COLUMNS);
+        webSetting.setSupportZoom(true);
+        webSetting.setBuiltInZoomControls(true);
+        webSetting.setUseWideViewPort(true);
+        webSetting.setSupportMultipleWindows(true);
+        // webSetting.setLoadWithOverviewMode(true);
+        webSetting.setAppCacheEnabled(true);
+        // webSetting.setDatabaseEnabled(true);
+        webSetting.setDomStorageEnabled(true);
+        webSetting.setGeolocationEnabled(true);
+        webSetting.setAppCacheMaxSize(Long.MAX_VALUE);
+        // webSetting.setPageCacheCapacity(IX5WebSettings.DEFAULT_CACHE_CAPACITY);
+        webSetting.setPluginState(WebSettings.PluginState.ON_DEMAND);
+        // webSetting.setRenderPriority(WebSettings.RenderPriority.HIGH);
+        webSetting.setCacheMode(WebSettings.LOAD_NO_CACHE);
 
-	}
+        // this.getSettingsExtension().setPageCacheCapacity(IX5WebSettings.DEFAULT_CACHE_CAPACITY);//extension
+        // settings 的设计
+    }
 
 }

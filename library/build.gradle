@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 
-group='com.github.ernestchang'
+group = 'com.github.ernestchang'
 version = "1.0.5"
 
 android {
@@ -13,6 +13,16 @@ android {
         targetSdkVersion 27
         versionCode 1
         versionName version
+
+        ndk {
+            abiFilters "armeabi"//, "armeabi-v7a", "x86", "mips"
+        }
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
     }
     buildTypes {
         release {
@@ -23,6 +33,9 @@ android {
 }
 
 dependencies {
+    implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
+    api files('libs/tbs_sdk.jar')
+
 }
 //
 //def siteUrl = 'https://github.com/lzyzsd/JsBridge'

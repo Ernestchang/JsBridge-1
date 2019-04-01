@@ -7,8 +7,8 @@ import android.util.Log;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+
+import com.tencent.smtt.sdk.WebView;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -16,7 +16,7 @@ import java.net.URLDecoder;
 /**
  * Created by bruce on 10/28/15.
  */
-public class BridgeWebViewClient extends WebViewClient {
+public class BridgeWebViewClient extends com.tencent.smtt.sdk.WebViewClient {
     private BridgeWebView webView;
 
     public BridgeWebViewClient(BridgeWebView webView) {
@@ -24,7 +24,7 @@ public class BridgeWebViewClient extends WebViewClient {
     }
 
     @Override
-    public boolean shouldOverrideUrlLoading(WebView view, String url) {
+    public boolean shouldOverrideUrlLoading(com.tencent.smtt.sdk.WebView view, String url) {
         try {
             url = URLDecoder.decode(url, "UTF-8");
         } catch (UnsupportedEncodingException e) {
@@ -70,7 +70,6 @@ public class BridgeWebViewClient extends WebViewClient {
     }
 
 
-    @Override
     public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
         //注意：super句话一定要删除，或者注释掉，否则又走handler.cancel()默认的不支持https的了。
         //super.onReceivedSslError(view, handler, error);
@@ -82,9 +81,8 @@ public class BridgeWebViewClient extends WebViewClient {
 
 
     @TargetApi(android.os.Build.VERSION_CODES.M)
-    @Override
     public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
-        super.onReceivedHttpError(view, request, errorResponse);
+//        super.onReceivedHttpError(view, request, errorResponse);
         // 这个方法在6.0才出现
         int statusCode = errorResponse.getStatusCode();
         Log.e("ernest", "onReceivedHttpError code = " + statusCode);
